@@ -104,3 +104,9 @@ package-lock.json
 dpkg/build
 dpkg/deb
 .secret_key
+
+# celerybeat
+celerybeat-schedule.*
+
+# migrations
+app/migrations/*
