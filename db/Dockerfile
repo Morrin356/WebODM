@@ -29,14 +29,14 @@ RUN apt-get update; \
 	chown -R postgres:postgres /var/lib/postgresql; \
     # grab gosu for easy step-down from root
     # https://github.com/tianon/gosu/releases
-	apt-get install -y --no-install-recommends wget gcc libreadline-dev; \
+	apt-get install -y -qq --no-install-recommends wget gcc libreadline-dev; \
 	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-	wget --no-check-certificate -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+	wget --no-check-certificate -q -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
 	chmod +x /usr/local/bin/gosu; \
 	gosu --version; \
 	gosu nobody true; \
     # make the "en_US.UTF-8" locale so postgres will be utf-8 enabled by default
-	apt-get install -y --no-install-recommends locales; \
+	apt-get install -y -qq --no-install-recommends locales; \
 	localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8; \
 	# Build Postgres from source
 	mkdir /staging; \
@@ -46,9 +46,9 @@ RUN apt-get update; \
 	cd /staging; \
 	tar -zxf postgresql-$PG_MAJOR.tar.gz; \
 	cd postgresql-$PG_MAJOR; \
-	./configure --without-icu; \
-	make -j$(nproc); \
-	make install; \
+	./configure --without-icu > /dev/null; \
+	make -j$(nproc) -s > /dev/null; \
+	make install -s > /dev/null; \
 	postgres --version; \
   sed -ri "s/#autovacuum_max_workers = 3/autovacuum_max_workers = 6/" /usr/local/pgsql/share/postgresql.conf.sample; \
   sed -ri "s/#autovacuum_naptime = 1min/autovacuum_naptime = 15s/" /usr/local/pgsql/share/postgresql.conf.sample; \
@@ -65,7 +65,7 @@ RUN apt-get update; \
     # this 777 will be replaced by 700 at runtime (allows semi-arbitrary "--user" values)
     mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA"; \
     # Build PostGIS from source
-	apt-get install -o Acquire::Retries=3 -y --no-install-recommends libgdal-dev libjson-c-dev protobuf-c-compiler libprotobuf-c-dev; \
+	apt-get install -o Acquire::Retries=3 -y -qq --no-install-recommends libgdal-dev libjson-c-dev protobuf-c-compiler libprotobuf-c-dev; \
 	cd /staging; \
 	wget --no-check-certificate -q https://download.osgeo.org/postgis/source/postgis-$POSTGIS_VERSION.tar.gz; \
 	wget --no-check-certificate -q -O /usr/include/json-c/json_object_private.h https://raw.githubusercontent.com/json-c/json-c/json-c-0.16/json_object_private.h; \
