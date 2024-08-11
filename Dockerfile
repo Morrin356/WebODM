@@ -35,9 +35,8 @@ RUN apt-get -o Acquire::Retries=3 -qq update && \
     wget --no-check-certificate -q https://github.com/OSGeo/gdal/releases/download/v$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz && \
     tar -xzf gdal-$GDAL_VERSION.tar.gz && \
     cd gdal-$GDAL_VERSION && mkdir build && cd build && \
-    cmake .. && \
-    cmake --build . -j$(nproc) && \
-    cmake --build . --target install && \
+    cmake .. -DCMAKE_VERBOSE_MAKEFILE=ON > /dev/null 2>&1 && \
+    cmake --build . -j$(nproc) --target install && \
     cd / && rm -rf gdal-$GDAL_VERSION gdal-$GDAL_VERSION.tar.gz && \
 
     # Install pip reqs
