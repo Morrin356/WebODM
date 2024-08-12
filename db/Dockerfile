@@ -21,7 +21,7 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 # Setup system
-RUN apt-get update; \
+RUN apt-get update -qq; \
     set -eux; \
 	groupadd -r postgres --gid=999; \
 	useradd -r -g postgres --uid=999 --home-dir=/var/lib/postgresql --shell=/bin/bash postgres; \
