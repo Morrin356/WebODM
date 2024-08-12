@@ -42,7 +42,7 @@ RUN apt-get -o Acquire::Retries=3 -qq update && \
     # Install pip reqs
     cd /webodm && \
     pip install --quiet -U pip && \
-    pip install --quiet -r requirements.txt "boto3==1.34.145" && \
+    pip install -r requirements.txt "boto3==1.34.145" && \
     
     # Install Node.js using new Node install method
     apt-get -o Acquire::Retries=3 -qq install -y ca-certificates gnupg && \
