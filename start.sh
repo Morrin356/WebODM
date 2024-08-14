@@ -40,6 +40,7 @@ fi
 if [ "$1" = "--setup-devenv" ] || [ "$2" = "--setup-devenv" ]; then
     echo Setup git modules...
     
+    git config --global --add safe.directory /webodm
     git submodule update --init
     
     echo Setup npm dependencies...
