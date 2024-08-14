@@ -43,6 +43,6 @@ jobs:
         no-cache: true
         tags: |
           ${{ steps.docker_meta.outputs.tags }}
-          morrin356/webodm_webapp:latest
+          morrin356/webodm_webapp
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
