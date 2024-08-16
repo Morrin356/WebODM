@@ -61,11 +61,10 @@ RUN apt-get -o Acquire::Retries=3 -qq update > /dev/null && \
     python manage.py rebuildplugins && \
     python manage.py translate build --safe && \
 
-    apt update && \
-    apt install -y software-properties-common && \
-    add-apt-repository ppa:git-core/ppa && \
-    apt install -y git && \
-    git submodule update --init && \
+    apt-get install -y software-properties-common > /dev/null && \
+    add-apt-repository ppa:git-core/ppa > /dev/null && \
+    apt-get update > /dev/null && \
+    apt install -y git > /dev/null && \
 
     # Cleanup
     apt-get remove -y g++ && apt-get autoremove -y python2 && \
