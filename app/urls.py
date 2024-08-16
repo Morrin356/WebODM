@@ -1,4 +1,4 @@
-from django.urls import re_path, include
+from django.urls import path, re_path, include
 from django.views.i18n import JavaScriptCatalog
 
 from .views import app as app_views, public as public_views, dev as dev_views

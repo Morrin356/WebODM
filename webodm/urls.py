@@ -41,7 +41,7 @@ admin.site.site_header = 'WebODM Administration'
 urlpatterns = [
     path(r'', include('app.urls')),
     path(r'', include('django.contrib.auth.urls')),
-    path(r'^admin/', admin.site.urls),
+    path(r'admin/', admin.site.urls),
     # re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     # re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
