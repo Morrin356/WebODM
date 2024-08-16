@@ -138,6 +138,8 @@ WSGI_APPLICATION = 'webodm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('WO_DATABASE_ENGINE', 'django.contrib.gis.db.backends.postgis'),
