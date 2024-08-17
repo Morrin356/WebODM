@@ -69,6 +69,8 @@ RUN apt-get -o Acquire::Retries=3 -qq update > /dev/null && \
     # Cleanup
     apt-get remove -y g++ && apt-get autoremove -y python2 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm /webodm/webodm/secret_key.py
+    rm /webodm/webodm/secret_key.py && \
+
+    mkdir -p /webodm/app/media/tmp
 
 VOLUME /webodm/app/media
