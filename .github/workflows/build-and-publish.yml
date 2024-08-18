@@ -29,7 +29,7 @@ jobs:
       id: docker_meta
       uses: crazy-max/ghaction-docker-meta@v1
       with:
-        images: morrin356/webodm_webapp
+        images: morrin356/webodm_webapp_dev
         tag-semver: |
           {{version}}
     - name: Build and push Docker image
@@ -43,6 +43,6 @@ jobs:
         no-cache: true
         tags: |
           ${{ steps.docker_meta.outputs.tags }}
-          morrin356/webodm_webapp:latest
+          morrin356/webodm_webapp_dev:latest
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
