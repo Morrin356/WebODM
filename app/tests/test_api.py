@@ -7,7 +7,6 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_jwt.settings import api_settings
-# import rest_framework_simplejwt
 
 from app import pending_actions
 from app.models import Project, Task

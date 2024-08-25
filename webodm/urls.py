@@ -39,9 +39,9 @@ admin.site.site_header = 'WebODM Administration'
 # )
 
 urlpatterns = [
-    path(r'', include('app.urls')),
-    path(r'', include('django.contrib.auth.urls')),
-    path(r'admin/', admin.site.urls),
+    path('', include('app.urls')),
+    path('', include('django.contrib.auth.urls')),
+    path('admin/', admin.site.urls),
     # re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     # re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
@@ -50,10 +50,10 @@ urlpatterns = [
 if settings.DEBUG or settings.FORCE_MEDIA_STATICFILES:
     urlpatterns += [
         # Expose imagekit generated files and settings file uploads
-        re_path('media/CACHE/(?P<path>.*)', serve, {
+        re_path(r'^media/CACHE/(?P<path>.*)$', serve, {
             'document_root': os.path.join(settings.MEDIA_ROOT, 'CACHE')
         }),
-        re_path('media/settings/(?P<path>.*)', serve, {
+        re_path(r'^media/settings/(?P<path>.*)$', serve, {
             'document_root': os.path.join(settings.MEDIA_ROOT, 'settings')
         }),
 

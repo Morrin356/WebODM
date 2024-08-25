@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.contrib.postgres import fields
 from django.utils import timezone
 from django.dispatch import receiver
 from guardian.models import GroupObjectPermissionBase

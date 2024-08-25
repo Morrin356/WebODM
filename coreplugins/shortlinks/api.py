@@ -1,5 +1,4 @@
 import math
-import re 
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -9,13 +8,12 @@ from django.dispatch import receiver
 from app.plugins import GlobalDataStore
 from django.http import Http404
 from django.shortcuts import redirect
-from django.utils.translation import gettext_lazy as _
 
 import logging
 
 logger = logging.getLogger('app.logger')
 
-ds = GlobalDataStore('editshortlinks')
+ds = GlobalDataStore('shortlinks')
 
 def gen_short_string(num):
     num = int(abs(num))
@@ -25,95 +23,36 @@ def gen_short_string(num):
 
     return nbase(num)
 
-def getShortLinks(username):
-    return ds.get_json(username + "_shortlinks", {
-            't': {}, # task --> short id
-            'i': {} # short id --> task
-        })
-
-class DeleteShortLink(TaskView):
-    def post(self, request, pk=None):
-        task = self.get_and_check_task(request, pk)
-        task_id  = str(task.id)
-        username = str(request.user)
-
-        shortlinks = getShortLinks(username)
-
-        short_id = shortlinks['t'].get(task_id)
-        if short_id is not None:
-            del shortlinks['i'][short_id]
-            del shortlinks['t'][task_id]
-        
-        ds.set_json(username + "_shortlinks", shortlinks)
-
-        return Response({'success': True}, status=status.HTTP_200_OK)
-
-
-class EditShortLink(TaskView):
-    def post(self, request, pk=None):
-        task = self.get_and_check_task(request, pk)
-        task_id  = str(task.id)
-        username = str(request.user)
-        short_id = request.data.get("shortId")
-        if not re.match(r'^[A-Za-z0-9_-]+$', short_id):
-            return Response({'error': _("Short URLs can only include letters, numbers, underscore and dash characters (A-Z, 0-9, _, -).")})
-
-        shortlinks = getShortLinks(username)
-        if shortlinks['i'].get(short_id, task_id) != task_id:
-            return Response({'error': _("This short URL is already taken.")})
-
-        # Replace previous if any
-        prev_short_id = shortlinks['t'].get(task_id)
-        shortlinks['t'][task_id] = short_id
-
-        if prev_short_id is not None:
-            del shortlinks['i'][prev_short_id]
-
-        shortlinks['i'][short_id] = task_id
-
-        ds.set_json(username + "_shortlinks", shortlinks)
-
-        return Response({'username': username, 'shortId': short_id}, status=status.HTTP_200_OK)
 
 class GetShortLink(TaskView):
     def post(self, request, pk=None):
         task = self.get_and_check_task(request, pk)
-        task_id  = str(task.id)
-        username = str(request.user)
-        shortlinks = getShortLinks(username)
+        key = str(task.id)
 
-        if task_id in shortlinks['t']:
+        if ds.has_key(key):
             # Return existing short link
-            return Response({'username': username, 'shortId': shortlinks['t'][task_id]}, status=status.HTTP_200_OK)
+            return Response({'shortId': ds.get_string(key)}, status=status.HTTP_200_OK)
         else:
             # Compute short link, store it
             
             # Not atomic, but this shouldn't be a big problem
-            counter = ds.get_int(username + "_counter", 0)
-            ds.set_int(username + "_counter", counter + 1)
+            counter = ds.get_int("counter", 0)
+            ds.set_int("counter", counter + 1)
 
             short_id = gen_short_string(counter)
 
-            # Check for conflicts
-            while shortlinks['i'].get(short_id) is not None:
-                counter += 1
-                short_id = gen_short_string(counter)
+            # TaskId --> short id
+            ds.set_string(key, short_id)
 
-            # task_id --> short id
-            shortlinks['t'][task_id] = short_id
+            # short id --> taskId
+            ds.set_string(short_id, str(task.id))
 
-            # short id --> task_id
-            shortlinks['i'][short_id] = task_id
-
-            ds.set_json(username + "_shortlinks", shortlinks)
-
-            return Response({'username': username, 'shortId': short_id}, status=status.HTTP_200_OK)
+            return Response({'shortId': short_id}, status=status.HTTP_200_OK)
 
 
-def HandleShortLink(request, view_type, username, short_id):
-    shortlinks = getShortLinks(username)
-    if short_id in shortlinks['i']:
-        task_id = shortlinks['i'][short_id]
+def HandleShortLink(request, view_type, short_id):
+    if ds.has_key(short_id):
+        task_id = ds.get_string(short_id)
         if view_type == 'm':
             v = 'map'
         elif view_type == '3':
@@ -123,3 +62,10 @@ def HandleShortLink(request, view_type, username, short_id):
     else:
         raise Http404()
 
+@receiver(plugin_signals.task_removed, dispatch_uid="shortlinks_on_task_removed")
+def shortlinks_cleanup(sender, task_id, **kwargs):
+    short_id = ds.get_string(task_id)
+    if short_id:
+        logger.info("Cleaning up shortlinks datastore for task {}".format(str(task_id)))
+        ds.del_key(task_id)
+        ds.del_key(short_id)

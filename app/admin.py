@@ -143,7 +143,7 @@ class PluginAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.plugin_delete),
                 name='plugin-delete',
             ),
-            path(
+            re_path(
                 'actions/upload/',
                 self.admin_site.admin_view(self.plugin_upload),
                 name='plugin-upload',

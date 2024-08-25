@@ -317,14 +317,12 @@ REST_FRAMEWORK = {
     'rest_framework.permissions.DjangoObjectPermissions',
   ],
   'DEFAULT_FILTER_BACKENDS': [
-    # 'rest_framework_guardian.filters.ObjectPermissionsFilter',
     'django_filters.rest_framework.DjangoFilterBackend',
     'rest_framework.filters.OrderingFilter',
   ],
   'DEFAULT_AUTHENTICATION_CLASSES': (
     'rest_framework.authentication.BasicAuthentication',
     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # 'app.api.authentication.JSONWebTokenAuthenticationQS',
   ),
   'PAGE_SIZE': 10,
   'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
