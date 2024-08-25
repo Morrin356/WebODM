@@ -5,14 +5,19 @@ ENV POSTGRES_PASSWORD=postgres
 ENV POSTGRES_HOST_AUTH_METHOD=trust
 ENV POSTGRES_ALLOW_HOST=all
 ENV GOSU_VERSION=1.12
-# ENV PG_MAJOR=16.3
 ENV PG_MAJOR=16.1
-# ENV PG_VERSION=16.3.0
 ENV POSTGIS_VERSION=3.3.6
 ENV PATH=$PATH:/usr/local/pgsql/bin
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=en_US.utf8
 ENV PGDATA=/var/lib/postgresql/data
+
+RUN mkdir /docker-entrypoint-initdb.d
+COPY init.sql /docker-entrypoint-initdb.d/init-db.sql
+RUN chmod 644 /docker-entrypoint-initdb.d/init-db.sql
+
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 # Setup system
 # RUN apt-get update > /dev/null; \
@@ -38,15 +43,16 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
 	localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8; \
 	# Build Postgres from source
 	mkdir /staging; \
-	# apt-get install -y --no-install-recommends build-essential libproj-dev libgeos-dev libxml2-dev zlib1g-dev; \ 
-	apt-get install -y --no-install-recommends build-essential libproj-dev libgeos-dev libxml2-dev zlib1g-dev > /dev/null ; \ 
+	# apt-get install -y --no-install-recommends build-essential libproj-dev libgeos-dev libxml2-dev zlib1g-dev > /dev/null ; \ 
+	apt-get install -y --no-install-recommends build-essential libproj-dev libgeos-dev libxml2-dev zlib1g-dev libperl-dev python3-dev libbison-dev bison flex > /dev/null ; \ 
 	cd /staging; \
 	# wget --no-check-certificate -q https://ftp.postgresql.org/pub/source/v$PG_MAJOR/postgresql-$PG_MAJOR.tar.gz; \
 	wget --no-check-certificate -q https://mirrors.huaweicloud.com/postgresql/source/v$PG_MAJOR/postgresql-$PG_MAJOR.tar.gz; \
 	cd /staging; \
 	tar -zxf postgresql-$PG_MAJOR.tar.gz; \
 	cd postgresql-$PG_MAJOR; \
-	./configure --without-icu > /dev/null; \
+	find / -name "Python.h"; \
+	./configure --includedir=/usr/include/python3.9/ --without-icu --with-python --with-perl > /dev/null; \
 	make -j$(nproc) > /dev/null; \
 	make install > /dev/null; \
 	postgres --version; \
@@ -65,7 +71,7 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
     # this 777 will be replaced by 700 at runtime (allows semi-arbitrary "--user" values)
     mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA"; \
     # Build PostGIS from source
-	apt-get install -o Acquire::Retries=3 -y --no-install-recommends libgdal-dev libjson-c-dev protobuf-c-compiler libprotobuf-c-dev; \
+	apt-get install -o Acquire::Retries=3 -y --no-install-recommends libgdal-dev libjson-c-dev protobuf-c-compiler libprotobuf-c-dev git > /dev/null; \
 	cd /staging; \
 	wget --no-check-certificate -q https://download.osgeo.org/postgis/source/postgis-$POSTGIS_VERSION.tar.gz; \
 	wget --no-check-certificate -q -O /usr/include/json-c/json_object_private.h https://gh-proxy.natsuu.top/https://raw.githubusercontent.com/json-c/json-c/json-c-0.16/json_object_private.h; \
@@ -73,23 +79,16 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
 	sed -i 's/#error.*/#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1/' /usr/include/proj_api.h; \
 	cd /staging/postgis-$POSTGIS_VERSION; \
 	./configure --with-pgconfig=/usr/local/pgsql/bin/pg_config --with-gdalconfig=/usr/bin/gdal-config > /dev/null; \
-	make; \
-	make install; \
+	make -j$(nproc) > /dev/null; \
+	make install > /dev/null; \
 	sed -i '1d' /usr/local/pgsql/share/extension/postgis--$POSTGIS_VERSION.sql; \
 	apt-get remove -y gcc build-essential wget; \
 	apt-get autoremove -y; \
 	apt-get clean; \
 	rm -fr /var/lib/apt/lists/* /staging /usr/include;
 
-RUN mkdir /docker-entrypoint-initdb.d
-COPY init.sql /docker-entrypoint-initdb.d/init-db.sql
-RUN chmod 644 /docker-entrypoint-initdb.d/init-db.sql
-
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
-
 VOLUME /var/lib/postgresql/data
 ENTRYPOINT ["docker-entrypoint.sh"]
 STOPSIGNAL SIGINT
 EXPOSE 5432
-CMD ["postgres"] 
+CMD ["postgres"]
