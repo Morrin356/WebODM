@@ -95,6 +95,7 @@ node_modules/
 webpack-stats.json
 pip-selfcheck.json
 .idea/
+.vscode/
 package-lock.json
 .cronenv
 .initialized
@@ -104,9 +105,3 @@ package-lock.json
 dpkg/build
 dpkg/deb
 .secret_key
-
-# celerybeat
-celerybeat-schedule.*
-
-# migrations
-app/migrations/*
