@@ -41,6 +41,10 @@ if [ "$1" = "--setup-devenv" ] || [ "$2" = "--setup-devenv" ]; then
     echo Setup git modules...
     
     git config --global --add safe.directory /webodm
+    git config --global --add safe.directory /webodm/locale
+    git config --global --add safe.directory /webodm/nodeodm/external/NodeODM
+    npm config set registry http://mirrors.cloud.tencent.com/npm/
+
     git submodule update --init
     
     echo Setup npm dependencies...
@@ -54,16 +58,17 @@ if [ "$1" = "--setup-devenv" ] || [ "$2" = "--setup-devenv" ]; then
     echo Setup pip requirements...
     pip install -r requirements.txt
 
+
+    echo Running makemigrations
+    python manage.py makemigrations nodeodm
+    python manage.py makemigrations app
+
     echo Build translations...
     python manage.py translate build --safe
 
     echo Setup webpack watch...
     webpack --watch &
 fi
-
-# It's nessary to run makemigrations if the version of dependent packages is changed
-echo Running makemigrations
-python manage.py makemigrations
 
 echo Running migrations
 python manage.py migrate
