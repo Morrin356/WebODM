@@ -43,7 +43,7 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
     cd /webodm && \
     pip install --quiet -U pip && \
     pip install -r requirements.txt "boto3==1.34.145" > /dev/null && \
-    
+
     # Install Node.js using new Node install method
     apt-get -o Acquire::Retries=3 -qq install -y ca-certificates gnupg > /dev/null && \
     mkdir -p /etc/apt/keyrings && \
