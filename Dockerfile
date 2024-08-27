@@ -4,7 +4,6 @@ MAINTAINER Piero Toffanin <pt@masseranolabs.com>
 ARG TEST_BUILD
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=$PYTHONPATH:/webodm
 ENV NODE_MAJOR=20
 ENV PYTHON_MAJOR=3.10
 ENV GDAL_VERSION=3.8.5
@@ -61,12 +60,11 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
     python manage.py collectstatic --noinput && \
     python manage.py rebuildplugins && \
     python manage.py translate build --safe && \
-    
+
     # Cleanup
     apt-get remove -y g++ python2 && apt-get autoremove -y && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     rm /webodm/webodm/secret_key.py && \
-
     mkdir -p /webodm/app/media/tmp
 
 VOLUME /webodm/app/media
