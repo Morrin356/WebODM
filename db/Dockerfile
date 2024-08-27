@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 MAINTAINER Piero Toffanin <pt@masseranolabs.com>
 
 ENV POSTGRES_PASSWORD=postgres
@@ -20,12 +20,11 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 # Setup system
-# RUN apt-get update > /dev/null; \
 RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
 	sed -i "s@http://.*archive.ubuntu.com@http://mirrors.huaweicloud.com@g" /etc/apt/sources.list && \
 	sed -i "s@http://.*security.ubuntu.com@http://mirrors.huaweicloud.com@g" /etc/apt/sources.list; \
     apt-get update > /dev/null; \
-	set -eux; \
+    set -eux; \
 	groupadd -r postgres --gid=999; \
 	useradd -r -g postgres --uid=999 --home-dir=/var/lib/postgresql --shell=/bin/bash postgres; \
 	mkdir -p /var/lib/postgresql; \
@@ -43,16 +42,16 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
 	localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8; \
 	# Build Postgres from source
 	mkdir /staging; \
-	# apt-get install -y --no-install-recommends build-essential libproj-dev libgeos-dev libxml2-dev zlib1g-dev > /dev/null ; \ 
-	apt-get install -y --no-install-recommends build-essential libproj-dev libgeos-dev libxml2-dev zlib1g-dev libperl-dev python3-dev libbison-dev bison flex > /dev/null ; \ 
+	apt-get install -y --no-install-recommends build-essential libproj-dev libgeos-dev libxml2-dev zlib1g-dev > /dev/null ; \ 
 	cd /staging; \
-	# wget --no-check-certificate -q https://ftp.postgresql.org/pub/source/v$PG_MAJOR/postgresql-$PG_MAJOR.tar.gz; \
 	wget --no-check-certificate -q https://mirrors.huaweicloud.com/postgresql/source/v$PG_MAJOR/postgresql-$PG_MAJOR.tar.gz; \
 	cd /staging; \
 	tar -zxf postgresql-$PG_MAJOR.tar.gz; \
 	cd postgresql-$PG_MAJOR; \
+	apt-get install -y --no-install-recommends python3-dev libperl-dev > /dev/null ; \ 
 	find / -name "Python.h"; \
-	./configure --includedir=/usr/include/python3.9/ --without-icu --with-python --with-perl > /dev/null; \
+	./configure --includedir=/usr/include/python$(python -c "import sys; print('%d.%d' % sys.version_info[:2])")/ \
+				--without-icu --with-python --with-perl > /dev/null; \
 	make -j$(nproc) > /dev/null; \
 	make install > /dev/null; \
 	postgres --version; \
@@ -76,7 +75,6 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
 	wget --no-check-certificate -q https://download.osgeo.org/postgis/source/postgis-$POSTGIS_VERSION.tar.gz; \
 	wget --no-check-certificate -q -O /usr/include/json-c/json_object_private.h https://gh-proxy.natsuu.top/https://raw.githubusercontent.com/json-c/json-c/json-c-0.16/json_object_private.h; \
 	tar -zxf postgis-$POSTGIS_VERSION.tar.gz; \
-	sed -i 's/#error.*/#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1/' /usr/include/proj_api.h; \
 	cd /staging/postgis-$POSTGIS_VERSION; \
 	./configure --with-pgconfig=/usr/local/pgsql/bin/pg_config --with-gdalconfig=/usr/bin/gdal-config > /dev/null; \
 	make -j$(nproc) > /dev/null; \
