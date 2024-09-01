@@ -33,7 +33,7 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
     echo $(python -V) && \
 
     # Build GDAL from source
-    wget --no-check-certificate -q https://gh-proxy.natsuu.top/https://github.com/OSGeo/gdal/releases/download/v$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz && \
+    wget --no-check-certificate -q https://github.com/OSGeo/gdal/releases/download/v$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz && \
     tar -xzf gdal-$GDAL_VERSION.tar.gz && \
     cd gdal-$GDAL_VERSION && mkdir build && cd build && \
     cmake .. > /dev/null && cmake --build . -j$(nproc) --target install > /dev/null && \
