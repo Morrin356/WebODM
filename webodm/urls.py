@@ -23,6 +23,7 @@ from django.views.static import serve
 from rest_framework import permissions
 # from drf_yasg.views import get_schema_view
 # from drf_yasg import openapi
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 admin.site.site_header = 'WebODM Administration'
 
@@ -39,6 +40,8 @@ admin.site.site_header = 'WebODM Administration'
 # )
 
 urlpatterns = [
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include('app.urls')),
     path('', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),

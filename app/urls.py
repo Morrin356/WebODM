@@ -21,8 +21,8 @@ if settings.TESTING:
 
 urlpatterns = [
     path('', app_views.index, name='index'),
-    path('welcome', app_views.welcome, name='welcome'),
-    path('dashboard', app_views.dashboard, name='dashboard'),
+    path('welcome/', app_views.welcome, name='welcome'),
+    path('dashboard/', app_views.dashboard, name='dashboard'),
     re_path('map/project/(?P<project_pk>[^/.]+)/task/(?P<task_pk>[^/.]+)/', app_views.map, name='map'),
     re_path('map/project/(?P<project_pk>[^/.]+)/', app_views.map, name='map'),
     re_path('3d/project/(?P<project_pk>[^/.]+)/task/(?P<task_pk>[^/.]+)/', app_views.model_display, name='model_display'),
@@ -35,7 +35,7 @@ urlpatterns = [
 
     re_path('processingnode/([\d]+)/', app_views.processing_node, name='processing_node'),
 
-    path('api', include("app.api.urls")),
+    path('api/', include("app.api.urls")),
 
     re_path('plugins/(?P<plugin_name>[^/.]+)/(.*)', app_view_handler),
 

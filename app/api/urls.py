@@ -8,7 +8,6 @@ from .imageuploads import Thumbnail, ImageDownload
 from .processingnodes import ProcessingNodeViewSet, ProcessingNodeOptionsView
 from .admin import AdminUserViewSet, AdminGroupViewSet, AdminProfileViewSet
 from rest_framework_nested import routers
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .tiler import TileJson, Bounds, Metadata, Tiles, Export
 from .potree import Scene, CameraView
@@ -18,24 +17,24 @@ from .externalauth import ExternalTokenAuth
 from webodm import settings
 
 router = routers.DefaultRouter()
-router.register(r'projects', ProjectViewSet)
-router.register(r'processingnodes', ProcessingNodeViewSet)
-router.register(r'presets', PresetViewSet, basename='presets')
+router.register('projects', ProjectViewSet)
+router.register('processingnodes', ProcessingNodeViewSet)
+router.register('presets', PresetViewSet, basename='presets')
 
 tasks_router = routers.NestedSimpleRouter(router, r'projects', lookup='project')
-tasks_router.register(r'tasks', TaskViewSet, basename='projects-tasks')
+tasks_router.register('tasks', TaskViewSet, basename='projects-tasks')
 
 admin_router = routers.DefaultRouter()
-admin_router.register(r'admin/users', AdminUserViewSet, basename='admin-users')
-admin_router.register(r'admin/groups', AdminGroupViewSet, basename='admin-groups')
-admin_router.register(r'admin/profiles', AdminProfileViewSet, basename='admin-profiles')
+admin_router.register('admin/users', AdminUserViewSet, basename='admin-users')
+admin_router.register('admin/groups', AdminGroupViewSet, basename='admin-groups')
+admin_router.register('admin/profiles', AdminProfileViewSet, basename='admin-profiles')
 
 urlpatterns = [
-    re_path(r'processingnodes/options/$', ProcessingNodeOptionsView.as_view()),
+    path('processingnodes/options/', ProcessingNodeOptionsView.as_view()),
 
-    re_path(r'^', include(router.urls)),
-    re_path(r'^', include(tasks_router.urls)),
-    re_path(r'^', include(admin_router.urls)),
+    path('', include(router.urls)),
+    path('', include(tasks_router.urls)),
+    path('', include(admin_router.urls)),
 
     re_path('projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/(?P<tile_type>orthophoto|dsm|dtm)/tiles\.json', TileJson.as_view()),
     re_path('projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/(?P<tile_type>orthophoto|dsm|dtm)/bounds', Bounds.as_view()),
