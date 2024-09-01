@@ -33,7 +33,7 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
     echo $(python -V) && \
 
     # Build GDAL from source
-    wget --no-check-certificate -q https://github.com/OSGeo/gdal/releases/download/v$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz && \
+    wget --no-check-certificate -q https://gh-proxy.natsuu.top/https://github.com/OSGeo/gdal/releases/download/v$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz && \
     tar -xzf gdal-$GDAL_VERSION.tar.gz && \
     cd gdal-$GDAL_VERSION && mkdir build && cd build && \
     cmake .. > /dev/null && cmake --build . -j$(nproc) --target install > /dev/null && \
@@ -55,6 +55,7 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
     apt-get -o Acquire::Retries=3 -qq install -y --no-install-recommends nginx cron > /dev/null && \
     ln -s /webodm/nginx/crontab /var/spool/cron/crontabs/root && chmod 0644 /webodm/nginx/crontab && service cron start && chmod +x /webodm/nginx/letsencrypt-autogen.sh && \
     /webodm/nodeodm/setup.sh && /webodm/nodeodm/cleanup.sh && cd /webodm && \
+    npm config set registry http://mirrors.cloud.tencent.com/npm/ && \
     npm install --quiet -g webpack@5.89.0 > /dev/null && npm install --quiet -g webpack-cli@5.1.4 > /dev/null && npm install --quiet > /dev/null && webpack --mode production > /dev/null && \
     echo "UTC" > /etc/timezone && \
     python manage.py collectstatic --noinput && \
@@ -62,7 +63,7 @@ RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak && \
     python manage.py translate build --safe && \
 
     # Cleanup
-    apt-get remove -y g++ python2 && apt-get autoremove -y && \
+    apt-get remove -y python2 && apt-get autoremove -y && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     rm /webodm/webodm/secret_key.py && \
     mkdir -p /webodm/app/media/tmp
