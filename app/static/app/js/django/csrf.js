@@ -27,6 +27,7 @@ let header = "X-CSRFToken",
 // Automatically setup jQuery to send a CSRF header
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
+        xhr.setRequestHeader("Authorization", "Bearer" + " " +localStorage.getItem("token"));
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
             xhr.setRequestHeader(header, token);
         }
