@@ -91,14 +91,14 @@ export default class Login extends React.Component {
                         <input className="form-control" id="email" name="email" required="" 
                             type="text" value={this.state.email} 
                             onChange={this.handleEmailChange} 
-                            onKeyPress={this.handleKeyPress} />
+                            onKeyDown={this.handleKeyPress} />
                     </p>
                     <p>
                         <label htmlFor="password">{_("Password")}</label> 
                         <input className="form-control" id="password" name="password" required="" 
                             type="password" value={this.state.password} 
                             onChange={this.handlePasswordChange} 
-                            onKeyPress={this.handleKeyPress} />
+                            onKeyDown={this.handleKeyPress} />
                     </p>
                     <div style={{float: 'right'}} >
                         <a href="https://webodm.net/register" target="_blank">{_("Don't have an account?")}</a><br/>
